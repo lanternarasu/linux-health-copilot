@@ -42,7 +42,7 @@ The tool shows its explanation and exact proposed read-only commands. It runs th
 If you already know the process ID, include it in the request:
 
 ```bash
-python main.py ask "how do I stop process PID 4242?"
+python main.py ask "how do I stop process 4242?"
 ```
 
 To ask about the highest-memory process without supplying a PID:

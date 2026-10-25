@@ -125,7 +125,11 @@ def top_process_output(output: str) -> str:
 
 
 def requested_pid(request: str) -> int | None:
-    match = re.search(r"\bpid\s*[:#]?\s*(\d+)\b", request, re.IGNORECASE)
+    match = re.search(
+        r"\b(?:pid|process(?:\s+id)?)\s*[:#]?\s*(\d+)\b",
+        request,
+        re.IGNORECASE,
+    )
     if match is None:
         return None
     try:
