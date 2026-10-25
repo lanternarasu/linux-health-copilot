@@ -20,31 +20,32 @@ Build mode: learn
   Commit: `Add confirmed read-only memory diagnosis`
 
 - [x] **2. Add manual-only process advice and finish the demo guide**
-  Becomes usable: A request to stop a high-memory process produces a yellow manual-only suggestion and never executes it. If no PID is included, the user may confirm a fresh read-only process check; the app then uses its result for the suggestion. The README explains setup, safety behavior, errors, and the 60-second demo.
+  Becomes usable: A request to stop a high-memory process produces a yellow manual-only suggestion and never executes it. If no PID is included, the user may confirm a fresh read-only process check; the app suggests the highest-memory process other than itself and never suggests PID 1. The README explains setup, safety behavior, errors, and the 60-second demo.
   Why now: Once the core diagnostic works and has received early feedback, this completes the second half of the approved journey without expanding the allowlist.
   PRD ref: `prd.md > The Core Journey` (step 5), `Features and Behavior > State-Changing and Unverified Suggestions`, `States and Boundaries`, `Graceful Error Handling`.
   Spec ref: `spec.md > Components > Gemini Request and Response`, `Safety Gate and Confirmation`, `Diagnostic and Terminal Output`, `Data Model`, `Important Failure Modes`, `File Structure`, `Where It Runs and How Someone Tries It`.
-  Build: Add the process-stop and unverified-command response paths, support a supplied PID or a confirmed fresh process check, preserve the never-execute boundary, and complete `README.md` with Ubuntu/WSL setup, `.env` configuration, examples, error guidance, and the recording sequence.
-  Verify (mechanical): Run `python -m compileall -q main.py`, `python main.py --help`, and both demo requests in WSL. Confirm a process-stop suggestion shows the yellow manual-only tag and no prompt to execute it; verify an ambiguous/unrecognized action cannot invoke a command. Follow the README setup and demo commands.
+  Build: Add the process-stop and unverified-command response paths, support a supplied PID or a confirmed fresh process check, exclude the running copilot and PID 1 from stop suggestions, preserve the never-execute boundary, and complete `README.md` with Ubuntu/WSL setup, `.env` configuration, examples, error guidance, and the recording sequence.
+  Verify (mechanical): Run `python -m compileall -q main.py`, `python main.py --help`, and both demo requests in WSL. Confirm a process-stop suggestion shows the yellow manual-only tag and no prompt to execute it; verify PID 1, the copilot PID, and an ambiguous/unrecognized action cannot invoke a command. Follow the README setup and demo commands.
   Learner check: Run the two-step 60-second demo in WSL, including the refreshed-PID confirmation when needed. Try one unfamiliar request and check that it remains manual-only; report any confusing output or needed changes.
   Commit: `Add manual-only process guidance and demo docs`
 
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored after slice 1. Feedback: the `n` default is clear and fail-closed; raw `free`/`ps` output before interpretation is transparent; the local allowlist is distinct from Gemini's role. The exact commands are already listed before the confirmation prompt, so the suggested preview is present.
-- [x] Final kick-the-tires exploration and feedback completed after slice 2. The learner confirmed the read-only `ps` refresh, manual-only `kill <PID>` suggestion, and fail-closed boundary were clear.
+- [x] Final kick-the-tires exploration and feedback completed after Slice 2 repair. WSL `ps` output included the copilot PID, but the manual suggestion selected the next process; no state-changing command ran.
 
 ## Final Review
 
+- [x] No-PID stop suggestions exclude the copilot's own PID and PID 1; WSL regression retest passed.
 - [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
 - [x] Learning activity complete — guided route through the working CLI and current source.
 - [x] Optional edit and transfer reflection addressed — no code edit requested; reusable practice already articulated.
-- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [ ] `devpost/app-map.html` regenerated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. Final checks: WSL `compileall`, CLI help, mocked state-changing/unverified routes, and rendered HTML app map.
+Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. Regression retest verified that the copilot's own PID is excluded. Final checks: WSL syntax parse, CLI help, mocked state-changing/unverified routes, and rendered HTML app map.
 Route and stops: `main.py > build_parser()` → `main.py > ask()` → `main.py > confirm_read_only()` / `run_diagnostic()`; output returns to `ask()` for `interpret_diagnostics()` or `show_state_change_suggestion()`.
 Edit outcome: No code edit requested; not applicable.
 Reflection: Already covered. Learner articulated that Gemini classifies/interprets while local allowlist and explicit confirmation control execution; personal note is in the ignored profile.
@@ -52,3 +53,5 @@ Activity mode: Live app and editor.
 
 ## Revisions
 - The prior OpenAI key returned HTTP 429 `insufficient_quota` / `credit_balance_exhausted`, prompting the learner-approved switch to Gemini. After configuring Gemini, the WSL learner check verified that `n` cancels without running commands and `y` runs only the fixed `free`/`ps` diagnostics, showing raw output followed by Gemini's interpretation. The WSL venv stays under the Linux home directory to avoid colliding with the Windows venv in the shared workspace.
+- A live stop-process test showed that the no-PID path could select the copilot's own Python process and suggest a stale `kill` command. The implementation was corrected to exclude the running copilot and PID 1, then verified with a WSL retest.
+- WSL regression retest confirmed the copilot's PID is excluded and the next eligible process is shown as manual-only. The final review is complete; refresh the app map for the new source commit before marking its checkbox complete.

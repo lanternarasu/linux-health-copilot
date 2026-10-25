@@ -136,15 +136,17 @@ def requested_pid(request: str) -> int | None:
 
 def top_process_pid(output: str) -> int | None:
     lines = output.splitlines()
-    if len(lines) < 2:
-        return None
-    fields = lines[1].split()
-    if not fields:
-        return None
-    try:
-        return int(fields[0])
-    except ValueError:
-        return None
+    for line in lines[1:]:
+        fields = line.split()
+        if not fields:
+            continue
+        try:
+            pid = int(fields[0])
+        except ValueError:
+            continue
+        if pid > 1 and pid != os.getpid():
+            return pid
+    return None
 
 
 def confirm_read_only(commands: list[tuple[str, list[str]]]) -> bool:
@@ -230,6 +232,7 @@ def ask(request: str) -> int:
 
     if action_id == STOP_PROCESS_ACTION:
         pid = requested_pid(request)
+        pid_was_discovered = pid is None
         if pid is None:
             process_check = [MEMORY_DIAGNOSTICS[1]]
             if not confirm_read_only(process_check):
@@ -250,15 +253,19 @@ def ask(request: str) -> int:
             print("No process ID was available, so no stop command was suggested.")
             print("No state-changing command was run.")
             return 0
-        if pid <= 1:
+        if pid <= 1 or pid == os.getpid():
             print_status("[STATE-CHANGING SUGGESTION - MANUAL ONLY]", "yellow")
-            print(f"PID {pid} is protected; no stop command was suggested.")
+            print(f"PID {pid} is protected or belongs to this copilot; no stop command was suggested.")
             print("No state-changing command was run.")
             return 0
 
+        reason = "The default kill signal asks the process to shut down cleanly."
+        if pid_was_discovered:
+            reason = (
+                "This is the highest-memory process other than this copilot. " + reason
+            )
         show_state_change_suggestion(
-            f"kill {pid}",
-            "The default kill signal asks the process to shut down cleanly.",
+            f"kill {pid}", reason,
         )
         return 0
 

@@ -32,7 +32,7 @@ Source: `scope.md > The Core Loop` and `What "Working" Looks Like`.
 ### State-Changing and Unverified Suggestions
 Source: `scope.md > The Unique Kernel`, `The Core Loop`, and `The POC Boundary`.
 
-- A state-changing request, such as stopping a process, receives a suggested command and a yellow `[STATE-CHANGING SUGGESTION - MANUAL ONLY]` label. The tool explains that the action changes system state and may be run manually by the user if desired.
+- A state-changing request, such as stopping a process, receives a suggested command and a yellow `[STATE-CHANGING SUGGESTION - MANUAL ONLY]` label. If no PID is supplied, the tool offers a confirmed, read-only process refresh and suggests the highest-memory process other than the copilot itself. PID 1 and the copilot's own PID never receive a stop suggestion. The tool explains that the action changes system state and may be run manually by the user if desired.
 - The tool never executes state-changing or high-risk commands, including `kill`, `chmod`, or service restarts, and does not offer an execution prompt for them.
 - If command parsing is ambiguous or the tool cannot guarantee that a proposed command is strictly read-only, it blocks execution and shows a yellow `[UNVERIFIED COMMAND - MANUAL ONLY]` label, the proposed command, and this explanation: “The safety parser could not guarantee this command is read-only. For your security, auto-execution is disabled. Review and run manually if desired.”
 
@@ -56,6 +56,7 @@ Source: `scope.md > The POC Boundary`.
 - The first demo focuses on memory availability and the top three RAM-consuming processes; disk checks are deferred to keep the workflow small.
 - Read-only diagnostics require an explicit `y` or `yes` confirmation. All other responses leave the system unchanged.
 - State-changing commands are suggestions only. Ambiguous or unverified commands are also blocked from execution.
+- Stop-process advice must not target PID 1 or the running copilot process; when discovering a target, select the highest-memory process other than the copilot itself.
 - Successful diagnostic output includes both raw system results and a short plain-English interpretation.
 - Safety and error labels are color-coded in the terminal: green for verified read-only, yellow for manual-only or unverified, and red for errors.
 - API/network and OS command failures produce helpful messages and clean exits rather than raw tracebacks.

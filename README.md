@@ -51,7 +51,7 @@ To ask about the highest-memory process without supplying a PID:
 python main.py ask "how do I stop the highest memory-consuming process?"
 ```
 
-Without a PID, the tool offers to run the fixed, read-only `ps` check after confirmation, then suggests `kill <PID>` for you to review and run manually. The app never runs `kill` or any other state-changing command.
+Without a PID, the tool offers to run the fixed, read-only `ps` check after confirmation, then suggests `kill <PID>` for the highest-memory process other than the copilot itself. It never suggests PID 1 or its own PID, and never runs `kill` or any other state-changing command.
 
 ## Safety
 
