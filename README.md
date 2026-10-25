@@ -75,3 +75,7 @@ Without a PID, the tool offers to run the fixed, read-only `ps` check after conf
 3. Ask how to stop a high-memory process and show that the command is presented as manual-only, never executed.
 
 Disk checks, journal analysis, and additional diagnostics are outside this proof of concept.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).

@@ -74,6 +74,7 @@ project/
 |-- requirements.txt    # google-genai and python-dotenv
 |-- .env.example        # secret-free API/model settings template
 |-- .gitignore          # excludes .env files and learner profile
+|-- LICENSE             # MIT License
 |-- README.md           # Ubuntu/WSL installation, setup, usage, and demo
 `-- devpost/
     |-- learner-profile.md  # ignored by git; personal learning context
