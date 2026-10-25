@@ -37,9 +37,26 @@ python main.py ask "check my available memory and list the top 3 processes using
 
 The tool shows its explanation and exact proposed read-only commands. It runs them only if you type `y` or `yes`; any other input cancels. The output includes the raw results and an AI-written plain-English interpretation.
 
+## Get a manual-only stop suggestion
+
+If you already know the process ID, include it in the request:
+
+```bash
+python main.py ask "how do I stop process PID 4242?"
+```
+
+To ask about the highest-memory process without supplying a PID:
+
+```bash
+python main.py ask "how do I stop the highest memory-consuming process?"
+```
+
+Without a PID, the tool offers to run the fixed, read-only `ps` check after confirmation, then suggests `kill <PID>` for you to review and run manually. The app never runs `kill` or any other state-changing command.
+
 ## Safety
 
 - The app uses a fixed local allowlist for `free -h` and `ps -eo pid,comm,%mem,rss --sort=-%mem`.
+- If a stop-process request has no PID, only the allowlisted `ps` check can be run, and only after the same `y/N` confirmation.
 - Commands run as argument lists with `shell=False`. Model-generated command text is never passed to the operating system.
 - State-changing, ambiguous, or unverified requests are manual-only and are never executed by this tool.
 - Process names and PIDs from the selected diagnostic output are sent to Gemini for interpretation. No files or logs are sent.

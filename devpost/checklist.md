@@ -19,7 +19,7 @@ Build mode: learn
   Learner check: In WSL, try the memory request once with `n` and once with `y`; confirm the first run does not execute, and the second shows `free`/`ps` output and a short explanation. Share what feels clear or confusing before the follow-up slice.
   Commit: `Add confirmed read-only memory diagnosis`
 
-- [ ] **2. Add manual-only process advice and finish the demo guide**
+- [x] **2. Add manual-only process advice and finish the demo guide**
   Becomes usable: A request to stop a high-memory process produces a yellow manual-only suggestion and never executes it. If no PID is included, the user may confirm a fresh read-only process check; the app then uses its result for the suggestion. The README explains setup, safety behavior, errors, and the 60-second demo.
   Why now: Once the core diagnostic works and has received early feedback, this completes the second half of the approved journey without expanding the allowlist.
   PRD ref: `prd.md > The Core Journey` (step 5), `Features and Behavior > State-Changing and Unverified Suggestions`, `States and Boundaries`, `Graceful Error Handling`.
@@ -32,7 +32,7 @@ Build mode: learn
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored after slice 1. Feedback: the `n` default is clear and fail-closed; raw `free`/`ps` output before interpretation is transparent; the local allowlist is distinct from Gemini's role. The exact commands are already listed before the confirmation prompt, so the suggested preview is present.
-- [ ] Final kick-the-tires exploration and feedback completed after slice 2.
+- [x] Final kick-the-tires exploration and feedback completed after slice 2. The learner confirmed the read-only `ps` refresh, manual-only `kill <PID>` suggestion, and fail-closed boundary were clear.
 
 ## Final Review
 

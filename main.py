@@ -14,6 +14,8 @@ from google.genai import errors
 
 DEFAULT_MODEL = "gemini-3.5-flash-lite"
 MEMORY_ACTION = "memory_process_check"
+STOP_PROCESS_ACTION = "stop_process"
+STATE_CHANGE_ACTION = "state_changing_suggestion"
 SAFETY_MESSAGE = (
     "The safety parser could not guarantee this command is read-only. "
     "For your security, auto-execution is disabled. Review and run manually if desired."
@@ -71,11 +73,15 @@ def classify_request(client: genai.Client, model: str, request: str) -> dict[str
     instructions = (
         "You classify Linux troubleshooting requests and write concise explanations. "
         "Return only a JSON object with keys action_id, explanation, suggested_command, "
-        "and reason. action_id must be memory_process_check only if the user asks to "
-        "check available memory or top RAM-consuming processes. For all other requests, "
-        "use manual_only. Never suggest that the application execute a command. "
-        "If a manual command is useful, include it as suggested_command and explain why "
-        "it must be run manually in reason. Do not claim you inspected the user's system."
+        "and reason. Use memory_process_check only for checking available memory or "
+        "top RAM-consuming processes. Use stop_process when the user asks how to stop "
+        "a high-memory process or free memory by stopping one. Use "
+        "state_changing_suggestion for other requests to change system state, such as "
+        "restarting services or changing permissions. Use manual_only for requests that "
+        "do not fit these categories or whose safety is unclear. Never suggest that the "
+        "application execute a command. For state_changing_suggestion, include a manual "
+        "command and explain why it is restricted. Do not invent a PID or claim you "
+        "inspected the user's system."
     )
     try:
         response_text = call_model(client, model, instructions, request)
@@ -116,6 +122,56 @@ def top_process_output(output: str) -> str:
     """Keep the ps header and the three highest-memory process rows."""
     lines = output.splitlines()
     return "\n".join(lines[:4])
+
+
+def requested_pid(request: str) -> int | None:
+    match = re.search(r"\bpid\s*[:#]?\s*(\d+)\b", request, re.IGNORECASE)
+    if match is None:
+        return None
+    try:
+        return int(match.group(1))
+    except ValueError:
+        return None
+
+
+def top_process_pid(output: str) -> int | None:
+    lines = output.splitlines()
+    if len(lines) < 2:
+        return None
+    fields = lines[1].split()
+    if not fields:
+        return None
+    try:
+        return int(fields[0])
+    except ValueError:
+        return None
+
+
+def confirm_read_only(commands: list[tuple[str, list[str]]]) -> bool:
+    print("\nProposed read-only commands:")
+    for display_command, _ in commands:
+        print(f"  {display_command}")
+    print_status("[READ-ONLY DIAGNOSTIC]", "green")
+
+    try:
+        confirmation = input("Execute command on system? [y/N]: ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print("\nCancelled; no command was run.")
+        return False
+
+    if confirmation not in {"y", "yes"}:
+        print("Cancelled; no command was run.")
+        return False
+    return True
+
+
+def show_state_change_suggestion(command: str, reason: str = "") -> None:
+    print_status("[STATE-CHANGING SUGGESTION - MANUAL ONLY]", "yellow")
+    print(f"Suggested command: {clean_terminal_text(command)}")
+    print("This is a state-changing command. Run this manually in your terminal if desired.")
+    if reason.strip():
+        print(clean_terminal_text(reason.strip()))
+    print("Review the command and target process before running it.")
 
 
 def run_diagnostic(label: str, arguments: list[str]) -> str | None:
@@ -170,8 +226,56 @@ def ask(request: str) -> int:
     if isinstance(explanation, str) and explanation.strip():
         print(clean_terminal_text(explanation.strip()))
 
+    action_id = action.get("action_id")
+
+    if action_id == STOP_PROCESS_ACTION:
+        pid = requested_pid(request)
+        if pid is None:
+            process_check = [MEMORY_DIAGNOSTICS[1]]
+            if not confirm_read_only(process_check):
+                return 0
+
+            display_command, arguments = process_check[0]
+            process_output = run_diagnostic(display_command, arguments)
+            if process_output is None:
+                return 1
+
+            print("\n--- RAW DIAGNOSTIC OUTPUT ---")
+            print(f"\n$ {display_command}")
+            print(process_output or "(no output)")
+            pid = top_process_pid(process_output)
+
+        if pid is None:
+            print_status("[STATE-CHANGING SUGGESTION - MANUAL ONLY]", "yellow")
+            print("No process ID was available, so no stop command was suggested.")
+            print("No state-changing command was run.")
+            return 0
+        if pid <= 1:
+            print_status("[STATE-CHANGING SUGGESTION - MANUAL ONLY]", "yellow")
+            print(f"PID {pid} is protected; no stop command was suggested.")
+            print("No state-changing command was run.")
+            return 0
+
+        show_state_change_suggestion(
+            f"kill {pid}",
+            "The default kill signal asks the process to shut down cleanly.",
+        )
+        return 0
+
+    if action_id == STATE_CHANGE_ACTION:
+        suggested_command = action.get("suggested_command")
+        reason = action.get("reason")
+        if isinstance(suggested_command, str) and suggested_command.strip():
+            show_state_change_suggestion(
+                suggested_command.strip(), reason if isinstance(reason, str) else ""
+            )
+        else:
+            print_status("[UNVERIFIED COMMAND - MANUAL ONLY]", "yellow")
+            print(SAFETY_MESSAGE)
+        return 0
+
     # The model can select only this fixed local action; its command text is ignored.
-    if action.get("action_id") != MEMORY_ACTION:
+    if action_id != MEMORY_ACTION:
         print_status("[UNVERIFIED COMMAND - MANUAL ONLY]", "yellow")
         suggested_command = action.get("suggested_command")
         reason = action.get("reason")
@@ -182,19 +286,7 @@ def ask(request: str) -> int:
         print(SAFETY_MESSAGE)
         return 0
 
-    print("\nProposed read-only commands:")
-    for display_command, _ in MEMORY_DIAGNOSTICS:
-        print(f"  {display_command}")
-    print_status("[READ-ONLY DIAGNOSTIC]", "green")
-
-    try:
-        confirmation = input("Execute command on system? [y/N]: ").strip().lower()
-    except (EOFError, KeyboardInterrupt):
-        print("\nCancelled; no command was run.")
-        return 0
-
-    if confirmation not in {"y", "yes"}:
-        print("Cancelled; no command was run.")
+    if not confirm_read_only(list(MEMORY_DIAGNOSTICS)):
         return 0
 
     outputs: list[tuple[str, str]] = []
