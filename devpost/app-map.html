@@ -153,7 +153,7 @@
             <text x="628" y="327" font-size="13" fill="#526564">kill is never passed to subprocess</text>
           </svg>
         </div>
-        <figcaption>Memory checks stop at the confirmation gate. A process-stop request follows a separate manual-only branch.</figcaption>
+        <figcaption>Memory checks stop at the confirmation gate. A process-stop request follows a separate manual-only branch that excludes this copilot's PID.</figcaption>
       </figure>
     </section>
 
@@ -166,7 +166,7 @@
         </article>
         <article class="stop">
           <h3>2. Choose a safe route</h3>
-          <p><code>ask()</code> reads the Gemini action ID. Only <code>memory_process_check</code> reaches the local diagnostic path; stop-process requests use <code>requested_pid()</code> or a confirmed <code>ps</code> refresh.</p>
+          <p><code>ask()</code> reads the Gemini action ID. Only <code>memory_process_check</code> reaches the memory diagnostic path; stop-process requests use <code>requested_pid()</code> or a confirmed <code>ps</code> refresh. <code>top_process_pid()</code> skips this copilot and PID 1.</p>
         </article>
         <article class="stop">
           <h3>3. Gate and show results</h3>
@@ -187,7 +187,7 @@
 
     <section class="panel practice" aria-labelledby="practice-title">
       <h2 id="practice-title">A practice to reuse</h2>
-      <p>Keep the permission boundary in local code, not in a model's generated text. Here, <code>ask()</code> accepts only a known action ID, <code>confirm_read_only()</code> requires <code>y</code> or <code>yes</code>, and <code>run_diagnostic()</code> receives fixed argument lists with <code>shell=False</code>. The WSL checks showed <code>n</code> cancels, <code>y</code> runs <code>free</code>/<code>ps</code>, and a stop request only displays <code>kill &lt;PID&gt;</code>. For another agent-built tool, define the allowed actions and observable checks before connecting AI output to an operation.</p>
+      <p>Keep the permission boundary in local code, not in a model's generated text. Here, <code>ask()</code> accepts only a known action ID, <code>confirm_read_only()</code> requires <code>y</code> or <code>yes</code>, and <code>run_diagnostic()</code> receives fixed argument lists with <code>shell=False</code>. The WSL checks showed <code>n</code> cancels, <code>y</code> runs <code>free</code>/<code>ps</code>, and a stop request only displays <code>kill &lt;PID&gt;</code> without targeting this copilot. For another agent-built tool, define the allowed actions and observable checks before connecting AI output to an operation.</p>
     </section>
 
     <section class="panel" aria-labelledby="run-title">
@@ -197,7 +197,7 @@ source ~/.venvs/linux-health-copilot/bin/activate
 python main.py ask "check my available memory and list the top 3 processes using the most RAM"</code></pre>
       <p class="muted">The app loads the local <code>.env</code>; do not copy its key into this map or commit it.</p>
       <div class="meta">
-        <span>Source snapshot: <code>31ba476</code></span>
+        <span>Source snapshot: <code>878336d</code></span>
         <span>Map file: <code>devpost/app-map.html</code></span>
         <span>This guide is a snapshot and may drift if the source changes.</span>
       </div>

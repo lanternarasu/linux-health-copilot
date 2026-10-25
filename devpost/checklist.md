@@ -43,7 +43,7 @@ Build mode: learn
 
 - [x] Learning activity complete — guided route through the working CLI and current source.
 - [x] Optional edit and transfer reflection addressed — no code edit requested; reusable practice already articulated.
-- [ ] `devpost/app-map.html` regenerated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` regenerated from finished code, checked in the browser, and shown, including a project-grounded practice to reuse
 
 Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. Regression retest verified that the copilot's own PID is excluded. Final checks: WSL syntax parse, CLI help, mocked state-changing/unverified routes, and rendered HTML app map.
 Route and stops: `main.py > build_parser()` → `main.py > ask()` → `main.py > confirm_read_only()` / `run_diagnostic()`; output returns to `ask()` for `interpret_diagnostics()` or `show_state_change_suggestion()`.
@@ -54,4 +54,4 @@ Activity mode: Live app and editor.
 ## Revisions
 - The prior OpenAI key returned HTTP 429 `insufficient_quota` / `credit_balance_exhausted`, prompting the learner-approved switch to Gemini. After configuring Gemini, the WSL learner check verified that `n` cancels without running commands and `y` runs only the fixed `free`/`ps` diagnostics, showing raw output followed by Gemini's interpretation. The WSL venv stays under the Linux home directory to avoid colliding with the Windows venv in the shared workspace.
 - A live stop-process test showed that the no-PID path could select the copilot's own Python process and suggest a stale `kill` command. The implementation was corrected to exclude the running copilot and PID 1, then verified with a WSL retest.
-- WSL regression retest confirmed the copilot's PID is excluded and the next eligible process is shown as manual-only. The final review is complete; refresh the app map for the new source commit before marking its checkbox complete.
+- WSL regression retest confirmed the copilot's PID is excluded and the next eligible process is shown as manual-only. The map was refreshed from source snapshot `878336d`, parsed offline, and checked in the browser.
