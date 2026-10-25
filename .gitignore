@@ -1,0 +1,11 @@
+devpost/learner-profile.md
+.env
+.env.*
+!.env.example
+/.agents/
+/.claude/
+/agent/
+/skills-lock.json
+/.venv/
+__pycache__/
+*.py[cod]
