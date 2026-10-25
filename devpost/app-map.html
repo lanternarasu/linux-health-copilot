@@ -166,7 +166,7 @@
         </article>
         <article class="stop">
           <h3>2. Choose a safe route</h3>
-          <p><code>ask()</code> reads the Gemini action ID. Only <code>memory_process_check</code> reaches the memory diagnostic path; stop-process requests use <code>requested_pid()</code> or a confirmed <code>ps</code> refresh. <code>top_process_pid()</code> skips this copilot and PID 1.</p>
+          <p><code>ask()</code> reads the Gemini action ID. Only <code>memory_process_check</code> reaches the memory diagnostic path; stop-process requests parse <code>PID 158</code> or <code>process 158</code> locally, or offer a confirmed <code>ps</code> refresh when no ID is supplied. <code>top_process_pid()</code> skips this copilot and PID 1.</p>
         </article>
         <article class="stop">
           <h3>3. Gate and show results</h3>
@@ -197,7 +197,7 @@ source ~/.venvs/linux-health-copilot/bin/activate
 python main.py ask "check my available memory and list the top 3 processes using the most RAM"</code></pre>
       <p class="muted">The app loads the local <code>.env</code>; do not copy its key into this map or commit it.</p>
       <div class="meta">
-        <span>Source snapshot: <code>878336d</code></span>
+        <span>Source snapshot: <code>8c3f106</code></span>
         <span>Map file: <code>devpost/app-map.html</code></span>
         <span>This guide is a snapshot and may drift if the source changes.</span>
       </div>

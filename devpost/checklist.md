@@ -32,20 +32,20 @@ Build mode: learn
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored after slice 1. Feedback: the `n` default is clear and fail-closed; raw `free`/`ps` output before interpretation is transparent; the local allowlist is distinct from Gemini's role. The exact commands are already listed before the confirmation prompt, so the suggested preview is present.
-- [ ] Final kick-the-tires exploration and feedback completed after the explicit-PID parsing correction.
+- [x] Final kick-the-tires exploration and feedback completed after the explicit-PID parsing correction. The live `process 158` request returned a manual-only suggestion for PID 158 without running `ps` or `kill`; the learner approved the behavior.
 
 ## Final Review
 
-- [ ] No-PID and explicit-PID stop suggestions exclude the copilot's own PID and PID 1; WSL regression retest passed.
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] No-PID and explicit-PID stop suggestions exclude the copilot's own PID and PID 1; WSL regression retest passed.
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
 - [x] Learning activity complete — guided route through the working CLI and current source.
 - [x] Optional edit and transfer reflection addressed — no code edit requested; reusable practice already articulated.
-- [ ] `devpost/app-map.html` regenerated from finished code, checked in the browser, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` regenerated from finished code, checked in the browser, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. Regression retest verified that the copilot's own PID is excluded. Final checks: WSL syntax parse, CLI help, mocked state-changing/unverified routes, and rendered HTML app map.
+Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. The live `process 158` request returned a manual-only `kill 158` suggestion without running `ps` or `kill`. Final checks: WSL syntax parse, CLI help, mocked state-changing/unverified routes, and the refreshed app map rendered in the browser without overflow.
 Route and stops: `main.py > build_parser()` → `main.py > ask()` → `main.py > confirm_read_only()` / `run_diagnostic()`; output returns to `ask()` for `interpret_diagnostics()` or `show_state_change_suggestion()`.
 Edit outcome: No code edit requested; not applicable.
 Reflection: Already covered. Learner articulated that Gemini classifies/interprets while local allowlist and explicit confirmation control execution; personal note is in the ignored profile.
@@ -54,4 +54,4 @@ Activity mode: Live app and editor.
 ## Revisions
 - The prior OpenAI key returned HTTP 429 `insufficient_quota` / `credit_balance_exhausted`, prompting the learner-approved switch to Gemini. After configuring Gemini, the WSL learner check verified that `n` cancels without running commands and `y` runs only the fixed `free`/`ps` diagnostics, showing raw output followed by Gemini's interpretation. The WSL venv stays under the Linux home directory to avoid colliding with the Windows venv in the shared workspace.
 - A live no-PID stop-process test showed that `ps` could select the copilot's own Python process and suggest a stale `kill` command. The implementation was corrected to exclude the running copilot and PID 1, then verified with a WSL retest.
-- A request phrased as `how do I stop process 158?` was not initially recognized as containing an explicit PID, so the app refreshed `ps` and suggested a different process. `requested_pid()` now recognizes both `process 158` and `PID 158`; the live WSL retest produced a manual-only suggestion for PID 158 without running `ps` or `kill`.
+- A request phrased as `how do I stop process 158?` was not initially recognized as containing an explicit PID, so the app refreshed `ps` and suggested a different process. `requested_pid()` now recognizes both `process 158` and `PID 158`; the live WSL retest produced a manual-only suggestion for PID 158 without running `ps` or `kill`. The learner confirmed the corrected behavior.
