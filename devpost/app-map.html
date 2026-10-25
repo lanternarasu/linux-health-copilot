@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linux Health Copilot | App Map</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172b2b;
+      --muted: #526564;
+      --paper: #f4f6f2;
+      --surface: #ffffff;
+      --green: #17634f;
+      --green-soft: #e1f1e9;
+      --amber: #9a5b00;
+      --amber-soft: #fff0d6;
+      --red: #a12c26;
+      --line: #cbd6d0;
+      --blue: #245a79;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    header {
+      padding: 2.25rem max(1.25rem, calc((100vw - 980px) / 2));
+      background: #173f3a;
+      color: #f7fbf8;
+      border-bottom: 5px solid #e0a344;
+    }
+    header p { max-width: 760px; margin: .5rem 0 0; color: #d6e7df; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.12; }
+    h2 { margin: 0 0 .75rem; font-size: 1.25rem; }
+    h3 { margin: 0 0 .35rem; font-size: 1rem; }
+    main { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    section { margin: 0 0 1.5rem; }
+    .panel {
+      padding: 1.2rem 1.35rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--green);
+      border-radius: 6px;
+    }
+    .lede { max-width: 780px; margin: 0; color: var(--muted); }
+    figure { margin: 1rem 0 0; }
+    svg { display: block; width: 100%; height: auto; }
+    svg text { font-family: "Segoe UI", sans-serif; fill: var(--ink); }
+    .flow-line { fill: none; stroke: #657c76; stroke-width: 2.5; marker-end: url(#arrow); }
+    .node { fill: #fff; stroke: #8fa59d; stroke-width: 2; rx: 8; }
+    .node-green { fill: var(--green-soft); stroke: var(--green); }
+    .node-amber { fill: var(--amber-soft); stroke: var(--amber); }
+    .node-blue { fill: #e8f1f6; stroke: var(--blue); }
+    figcaption, .muted { color: var(--muted); font-size: .92rem; }
+    .route { display: grid; gap: .75rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .stop { padding: .9rem 1rem; border-left: 4px solid var(--blue); background: #edf3f6; }
+    .stop p { margin: .3rem 0 0; color: var(--muted); }
+    code, kbd { font-family: Consolas, "Courier New", monospace; font-size: .94em; }
+    code { overflow-wrap: anywhere; }
+    ul { margin: .45rem 0 0; padding-left: 1.2rem; }
+    li + li { margin-top: .35rem; }
+    pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .practice { border-top-color: #d28a20; background: #fffaf0; }
+    .meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .8rem; color: var(--muted); font-size: .9rem; }
+    a { color: #174f6d; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #e0a344; outline-offset: 3px; }
+    @media (max-width: 720px) {
+      header { padding: 1.5rem 1rem; }
+      main { padding: 1rem .8rem 2rem; }
+      .panel { padding: 1rem; }
+      .route { grid-template-columns: 1fr; }
+      .diagram-wrap { overflow-x: auto; }
+      .diagram-wrap svg { min-width: 760px; }
+    }
+    @media print {
+      body { background: #fff; }
+      header { print-color-adjust: exact; }
+      .panel { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Linux Health Copilot</h1>
+    <p>A local Python CLI that explains memory diagnostics, runs only fixed read-only checks after confirmation, and keeps state-changing advice manual.</p>
+  </header>
+
+  <main>
+    <section class="panel" aria-labelledby="flow-title">
+      <h2 id="flow-title">One request, end to end</h2>
+      <p class="lede">Example: ask for available memory and the top three RAM-consuming processes. Gemini classifies and explains; local Python owns the only path to execution.</p>
+      <figure>
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 1040 400" role="img" aria-labelledby="diagram-title diagram-desc">
+            <title id="diagram-title">Memory-check request through the CLI safety gate</title>
+            <desc id="diagram-desc">The request enters the parser and ask function. Gemini returns a classification, but a local allowlist selects fixed free and ps commands. Confirmation gates execution. Raw output goes to Gemini for interpretation. State-changing requests branch to manual-only advice.</desc>
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#657c76"></path>
+              </marker>
+            </defs>
+            <rect class="node node-blue" x="24" y="42" width="178" height="72"></rect>
+            <text x="113" y="72" text-anchor="middle" font-size="16">CLI request</text>
+            <text x="113" y="96" text-anchor="middle" font-size="13">build_parser()</text>
+
+            <rect class="node" x="250" y="42" width="190" height="72"></rect>
+            <text x="345" y="72" text-anchor="middle" font-size="16">ask()</text>
+            <text x="345" y="96" text-anchor="middle" font-size="13">classify_request()</text>
+
+            <rect class="node node-blue" x="490" y="28" width="210" height="92"></rect>
+            <text x="595" y="61" text-anchor="middle" font-size="16">Gemini</text>
+            <text x="595" y="84" text-anchor="middle" font-size="13">classification JSON</text>
+            <text x="595" y="104" text-anchor="middle" font-size="12">never executes commands</text>
+
+            <rect class="node node-green" x="752" y="42" width="250" height="72"></rect>
+            <text x="877" y="72" text-anchor="middle" font-size="16">Local allowlist</text>
+            <text x="877" y="96" text-anchor="middle" font-size="13">fixed free / ps arguments</text>
+
+            <path class="flow-line" d="M202 78 H246"></path>
+            <path class="flow-line" d="M440 78 H486"></path>
+            <path class="flow-line" d="M700 78 H748"></path>
+
+            <rect class="node node-green" x="752" y="164" width="250" height="72"></rect>
+            <text x="877" y="194" text-anchor="middle" font-size="16">confirm_read_only()</text>
+            <text x="877" y="218" text-anchor="middle" font-size="13">only y / yes proceeds</text>
+            <path class="flow-line" d="M877 114 V160"></path>
+
+            <rect class="node node-green" x="490" y="164" width="210" height="72"></rect>
+            <text x="595" y="194" text-anchor="middle" font-size="16">run_diagnostic()</text>
+            <text x="595" y="218" text-anchor="middle" font-size="13">subprocess, shell=False</text>
+            <path class="flow-line" d="M752 200 H704"></path>
+
+            <rect class="node" x="250" y="164" width="190" height="72"></rect>
+            <text x="345" y="194" text-anchor="middle" font-size="16">Raw output</text>
+            <text x="345" y="218" text-anchor="middle" font-size="13">free / ps results</text>
+            <path class="flow-line" d="M490 200 H444"></path>
+
+            <rect class="node node-blue" x="24" y="164" width="178" height="72"></rect>
+            <text x="113" y="194" text-anchor="middle" font-size="16">Interpretation</text>
+            <text x="113" y="218" text-anchor="middle" font-size="13">Gemini, response.text</text>
+            <path class="flow-line" d="M250 200 H206"></path>
+
+            <rect class="node node-amber" x="250" y="292" width="340" height="72"></rect>
+            <text x="420" y="322" text-anchor="middle" font-size="16">Manual-only suggestion</text>
+            <text x="420" y="346" text-anchor="middle" font-size="13">show_state_change_suggestion()</text>
+            <path class="flow-line" d="M345 114 V150 Q345 270 420 288"></path>
+
+            <text x="628" y="327" font-size="13" fill="#526564">kill is never passed to subprocess</text>
+          </svg>
+        </div>
+        <figcaption>Memory checks stop at the confirmation gate. A process-stop request follows a separate manual-only branch.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="route-title">
+      <h2 id="route-title">Three stops in the code</h2>
+      <div class="route">
+        <article class="stop">
+          <h3>1. Receive the request</h3>
+          <p><code>main.py → build_parser() → main()</code> defines <code>ask</code> and passes the user's text into the app.</p>
+        </article>
+        <article class="stop">
+          <h3>2. Choose a safe route</h3>
+          <p><code>ask()</code> reads the Gemini action ID. Only <code>memory_process_check</code> reaches the local diagnostic path; stop-process requests use <code>requested_pid()</code> or a confirmed <code>ps</code> refresh.</p>
+        </article>
+        <article class="stop">
+          <h3>3. Gate and show results</h3>
+          <p><code>confirm_read_only()</code> gates <code>run_diagnostic()</code>. <code>interpret_diagnostics()</code> summarizes captured output; <code>show_state_change_suggestion()</code> displays remediation without running it.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="changes-title">
+      <h2 id="changes-title">To change this, start here</h2>
+      <ul>
+        <li>Allowed diagnostic commands: <code>MEMORY_DIAGNOSTICS</code> and <code>run_diagnostic()</code>.</li>
+        <li>Confirmation text and accepted answers: <code>confirm_read_only()</code>.</li>
+        <li>Process ID handling and manual advice: <code>requested_pid()</code>, <code>top_process_pid()</code>, and <code>show_state_change_suggestion()</code>.</li>
+        <li>Gemini model and response wording: <code>DEFAULT_MODEL</code>, <code>classify_request()</code>, and <code>interpret_diagnostics()</code>.</li>
+      </ul>
+    </section>
+
+    <section class="panel practice" aria-labelledby="practice-title">
+      <h2 id="practice-title">A practice to reuse</h2>
+      <p>Keep the permission boundary in local code, not in a model's generated text. Here, <code>ask()</code> accepts only a known action ID, <code>confirm_read_only()</code> requires <code>y</code> or <code>yes</code>, and <code>run_diagnostic()</code> receives fixed argument lists with <code>shell=False</code>. The WSL checks showed <code>n</code> cancels, <code>y</code> runs <code>free</code>/<code>ps</code>, and a stop request only displays <code>kill &lt;PID&gt;</code>. For another agent-built tool, define the allowed actions and observable checks before connecting AI output to an operation.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="run-title">
+      <h2 id="run-title">Run it again</h2>
+      <pre><code>cd /mnt/c/Users/Admin/Desktop/build_with_ai
+source ~/.venvs/linux-health-copilot/bin/activate
+python main.py ask "check my available memory and list the top 3 processes using the most RAM"</code></pre>
+      <p class="muted">The app loads the local <code>.env</code>; do not copy its key into this map or commit it.</p>
+      <div class="meta">
+        <span>Source snapshot: <code>31ba476</code></span>
+        <span>Map file: <code>devpost/app-map.html</code></span>
+        <span>This guide is a snapshot and may drift if the source changes.</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

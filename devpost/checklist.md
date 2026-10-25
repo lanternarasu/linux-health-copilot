@@ -36,19 +36,19 @@ Build mode: learn
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route through the working CLI and current source.
+- [x] Optional edit and transfer reflection addressed — no code edit requested; reusable practice already articulated.
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [what actually happened; real document/test/code references; unfinished work if interrupted]
-Route and stops: [actual paths and symbols; guided stops completed, or reference-only route]
-Edit outcome: [tried/kept/reverted/declined/not applicable; verification if changed]
-Reflection: [offered/answered/declined/already covered — personal answer belongs only in the ignored profile]
-Activity mode: [live app and editor, explicit static fallback, focused alternative, prior practice, or recap]
+Activity and evidence: WSL memory flow completed with `n` and `y`; no-PID process-stop flow confirmed the read-only `ps` refresh and manual-only suggestion. Final checks: WSL `compileall`, CLI help, mocked state-changing/unverified routes, and rendered HTML app map.
+Route and stops: `main.py > build_parser()` → `main.py > ask()` → `main.py > confirm_read_only()` / `run_diagnostic()`; output returns to `ask()` for `interpret_diagnostics()` or `show_state_change_suggestion()`.
+Edit outcome: No code edit requested; not applicable.
+Reflection: Already covered. Learner articulated that Gemini classifies/interprets while local allowlist and explicit confirmation control execution; personal note is in the ignored profile.
+Activity mode: Live app and editor.
 
 ## Revisions
 - The prior OpenAI key returned HTTP 429 `insufficient_quota` / `credit_balance_exhausted`, prompting the learner-approved switch to Gemini. After configuring Gemini, the WSL learner check verified that `n` cancels without running commands and `y` runs only the fixed `free`/`ps` diagnostics, showing raw output followed by Gemini's interpretation. The WSL venv stays under the Linux home directory to avoid colliding with the Windows venv in the shared workspace.
